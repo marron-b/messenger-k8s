@@ -1,0 +1,113 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: database-config
+  namespace: messenger-database
+  labels:
+    app: messenger
+    component: database
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>🗄️ Database Service</title>
+        <style>
+            body { 
+                font-family: Arial, sans-serif; 
+                background: linear-gradient(135deg, #2c3e50, #34495e);
+                color: white; padding: 40px; text-align: center; min-height: 100vh;
+                display: flex; align-items: center; justify-content: center;
+            }
+            .container { 
+                background: rgba(255,255,255,0.1); padding: 40px; 
+                border-radius: 20px; backdrop-filter: blur(10px);
+            }
+            .db-list { text-align: left; margin: 20px 0; }
+            .db-item { 
+                background: rgba(255,255,255,0.2); margin: 10px 0; 
+                padding: 15px; border-radius: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🗄️ Database Service</h1>
+            <p>데이터 저장소 클러스터</p>
+            
+            <div class="db-list">
+                <div class="db-item">
+                    <strong>📊 PostgreSQL</strong><br>
+                    사용자 데이터, 채팅방 정보
+                </div>
+                <div class="db-item">
+                    <strong>⚡ Redis</strong><br>
+                    세션, 캐시, 실시간 데이터
+                </div>
+                <div class="db-item">
+                    <strong>📄 MongoDB</strong><br>
+                    메시지 내용, 미디어 메타데이터
+                </div>
+                <div class="db-item">
+                    <strong>🔍 Elasticsearch</strong><br>
+                    메시지 검색 인덱스
+                </div>
+            </div>
+            
+            <p>🏷️ Namespace: messenger-database</p>
+            <p>💾 Features: Multi-DB Cluster, Backup, Replication</p>
+        </div>
+    </body>
+    </html>
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: database
+  namespace: messenger-database
+  labels:
+    app: messenger
+    component: database
+    service: database
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: messenger
+      component: database
+  template:
+    metadata:
+      labels:
+        app: messenger
+        component: database
+        service: database
+    spec:
+      containers:
+      - name: database
+        image: httpd:2.4
+        ports:
+        - containerPort: 80
+        env:
+        - name: SERVICE_NAME
+          value: "database"
+        - name: POSTGRES_HOST
+          value: "postgres.messenger-database"
+        - name: REDIS_HOST
+          value: "redis.messenger-database"
+        - name: MONGODB_HOST
+          value: "mongodb.messenger-database"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        volumeMounts:
+        - name: database-content
+          mountPath: /usr/local/apache2/htdocs/
+      volumes:
+      - name: database-content
+        configMap:
+          name: database-config

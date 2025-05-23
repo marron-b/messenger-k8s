@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: media-service
+  namespace: messenger-media
+  labels:
+    app: messenger
+    component: media
+spec:
+  selector:
+    app: messenger
+    component: media
+  ports:
+  - name: http
+    port: 8082
+    targetPort: 80
+    protocol: TCP
+  type: ClusterIP

@@ -1,0 +1,111 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: media-config
+  namespace: messenger-media
+  labels:
+    app: messenger
+    component: media
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>📷 Media Service</title>
+        <style>
+            body { 
+                font-family: Arial, sans-serif; 
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white; padding: 40px; text-align: center; min-height: 100vh;
+                display: flex; align-items: center; justify-content: center;
+            }
+            .container { 
+                background: rgba(255,255,255,0.1); padding: 40px; 
+                border-radius: 20px; backdrop-filter: blur(10px);
+            }
+            .api-list { text-align: left; margin: 20px 0; }
+            .endpoint { 
+                background: rgba(255,255,255,0.2); margin: 10px 0; 
+                padding: 15px; border-radius: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>📷 Media Service</h1>
+            <p>이미지/동영상 업로드 API</p>
+            
+            <div class="api-list">
+                <div class="endpoint">
+                    <strong>POST /api/media/upload</strong><br>
+                    파일 업로드 (이미지/동영상)
+                </div>
+                <div class="endpoint">
+                    <strong>GET /api/media/{fileId}</strong><br>
+                    미디어 파일 조회
+                </div>
+                <div class="endpoint">
+                    <strong>POST /api/media/thumbnail</strong><br>
+                    썸네일 생성
+                </div>
+                <div class="endpoint">
+                    <strong>DELETE /api/media/{fileId}</strong><br>
+                    파일 삭제
+                </div>
+            </div>
+            
+            <p>🏷️ Namespace: messenger-media</p>
+            <p>🎬 Features: File Storage, CDN, Image Processing</p>
+        </div>
+    </body>
+    </html>
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: media
+  namespace: messenger-media
+  labels:
+    app: messenger
+    component: media
+    service: media
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: messenger
+      component: media
+  template:
+    metadata:
+      labels:
+        app: messenger
+        component: media
+        service: media
+    spec:
+      containers:
+      - name: media
+        image: httpd:2.4
+        ports:
+        - containerPort: 80
+        env:
+        - name: SERVICE_NAME
+          value: "media"
+        - name: S3_BUCKET
+          value: "messenger-media-bucket"
+        - name: CDN_URL
+          value: "https://cdn.messenger.com"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        volumeMounts:
+        - name: media-content
+          mountPath: /usr/local/apache2/htdocs/
+      volumes:
+      - name: media-content
+        configMap:
+          name: media-config

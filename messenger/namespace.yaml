@@ -1,0 +1,68 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: messenger-frontend
+  labels:
+    app: messenger
+    tier: frontend
+    environment: test
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: messenger-messaging
+  labels:
+    app: messenger
+    tier: backend
+    service: messaging
+    environment: test
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: messenger-payment
+  labels:
+    app: messenger
+    tier: backend
+    service: payment
+    environment: test
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: messenger-media
+  labels:
+    app: messenger
+    tier: backend
+    service: media
+    environment: test
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: messenger-auth
+  labels:
+    app: messenger
+    tier: backend
+    service: auth
+    environment: test
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: messenger-chat
+  labels:
+    app: messenger
+    tier: backend
+    service: chat
+    environment: test
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: messenger-database
+  labels:
+    app: messenger
+    tier: data
+    environment: test
